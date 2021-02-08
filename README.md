@@ -2,7 +2,7 @@
 Welcome to Blitzjs workshop! This workshop will be a gentle intro to the [fullstack React framework Blitzjs](https://blitzjs.com/).
 
 ## Workshop goal
-> Get up and running with Blitz
+> Experience the beauty of a fully typed fullstack React app with Blitz 😍
 
 ## Workshop scope
 * Setup Tailwind CSS
