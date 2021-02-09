@@ -53,6 +53,10 @@ module.exports = {
 .description {
 	text-align: center;
 }
+
+a {
+	text-decoration: underline;
+}
 ```
 6) Import `style.css` in `./app/pages/_app.tsx`:
 ```ts
