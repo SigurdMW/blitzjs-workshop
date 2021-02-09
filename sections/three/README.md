@@ -1,4 +1,4 @@
-# Section 3 - Add TailwindCss
+# Section 3 - Add TailwindCSS
 ## Using Blitz Recipe
 1) Run `blitz install tailwind`
 
