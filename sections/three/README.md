@@ -1,6 +1,7 @@
 # Section 3 - Add TailwindCss
 ## Using Blitz Recipe
 1) Run `blitz install tailwind`
+
 *NB!* Might break due to this issue: https://github.com/blitz-js/blitz/issues/1879
 
 ## Setting up Tailwind manually
@@ -112,7 +113,7 @@ const Layout = ({ title, children }: LayoutProps) => {
 					</div>
 				</div>
 			</nav>
-			<div className="flex flex-col md:flex-row">
+			<div className="flex flex-col md:flex-row mt-24">
 				<div className="container mx-auto">
 					{children}
 				</div>
