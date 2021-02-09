@@ -131,28 +131,25 @@ export default MyDocument
 ```
 3) Update the `./app/pages/index.tsx` to contain: 
 ```tsx
-import { Link, BlitzPage, useMutation } from "blitz"
+import { Link, BlitzPage } from "blitz"
 import Layout from "app/layouts/Layout"
-import logout from "app/auth/mutations/logout"
-import { useCurrentUser } from "app/hooks/useCurrentUser"
-import { Suspense } from "react"
 
 const Home: BlitzPage = () => {
   return (
     <>
-		<h1 className="text-6xl">dotjs Leaderboard</h1>
-		<ul class="list-reset items-center text-sm pt-3">
-			<li>
-				<Link href="/signup">
-					<a class="inline-block text-gray-600 no-underline hover:text-gray-100 hover:text-underline py-1 text-base">Sign up</a>
-				</Link>
-			</li>
-			<li>
-				<Link href="/login">
-					<a class="inline-block text-gray-600 no-underline hover:text-gray-100 hover:text-underline py-1 text-base">Login</a>
-				</Link>
-			</li>
-		</ul>
+	<h1 className="text-6xl">dotjs Leaderboard</h1>
+	<ul className="list-reset items-center text-sm pt-3">
+		<li>
+			<Link href="/signup">
+				<a className="inline-block text-gray-600 no-underline hover:text-gray-100 hover:text-underline py-1 text-base">Sign up</a>
+			</Link>
+		</li>
+		<li>
+			<Link href="/login">
+				<a className="inline-block text-gray-600 no-underline hover:text-gray-100 hover:text-underline py-1 text-base">Login</a>
+			</Link>
+		</li>
+	</ul>
     </>
   )
 }
