@@ -207,7 +207,7 @@ const UserInfo = () => {
 const Home: BlitzPage = () => {
 	return (
 		<>
-			<h1 className="text-6xl">dotjs Leaderboard</h1>
+			<h1 className="text-6xl mb-2">dotjs Leaderboard</h1>
 			<Suspense fallback="Loading...">
 				<UserInfo />
 			</Suspense>
