@@ -63,7 +63,12 @@ model Action {
 }
 ```
 
-## Run the generaton
+## Explanation of schema
+* `activity`- is an activity that can give points. May users can perform the same activity to get points.
+* `action`  - an action is an activity performed by a user.
+In the end-solution, an admin will be able to create activities and create actions for users (hopefully users that deserves points).
+
+## Run the generation
 Run `blitz prisma migrate dev --preview-feature` to run the database migration. This performs the needed changes to our database and generates the typescript files. When prompted for name, just hit enter (just using the default name).
 
 Start the server with `blitz start` to verify that no errors occur.
