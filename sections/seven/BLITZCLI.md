@@ -38,4 +38,69 @@ model User {
 5) Go to [http://localhost:3000/actions](http://localhost:3000/actions) and make sure you get the generated actions page. It doesn't look good, but let's fix that next!
 
 ## Styles and cleanup
+The generated files are not using Tailwind like it should, so let's beautyfy it:
+1) Open `./app/actions/pages/actions/index.tsx`. We don't care about pagination for now, so let's remove that and simplify:
+```tsx
+import { Suspense } from "react"
+import Layout from "app/layouts/Layout"
+import { Link, BlitzPage, useQuery } from "blitz"
+import getActions from "app/actions/queries/getActions"
+
+const NewAction = () => (
+	<Link href="/actions/new">
+		<a className="bg-gradient-to-r from-purple-800 to-green-500 hover:from-pink-500 hover:to-green-500 text-white font-bold py-2 px-4 rounded focus:ring transform transition hover:scale-105 duration-300 ease-in-out">
+			New action
+	  </a>
+	</Link>
+)
+
+export const ActionsList = () => {
+	const [{ actions }] = useQuery(getActions, {
+		orderBy: { id: "asc" }
+	})
+
+	return (
+		<ul>
+			<>
+				{actions.length ? (
+					<>
+						{actions.map((action) => (
+							<li key={action.id}>
+								<Link href={`/actions/${action.id}`}>
+									<a>{action.id}</a>
+								</Link>
+							</li>
+						))}
+					</>
+				) : (
+						<li>
+							<div className="mb-4">There are no actions yet.</div>
+							<NewAction />
+						</li>
+					)}
+			</>
+
+		</ul>
+	)
+}
+
+const ActionsPage: BlitzPage = () => {
+	return (
+		<div>
+			<div className="flex justify-between mb-10 items-center">
+				<h1 className="text-6xl">Actions</h1>
+				<NewAction />
+			</div>
+
+			<Suspense fallback={<div>Loading...</div>}>
+				<ActionsList />
+			</Suspense>
+		</div>
+	)
+}
+
+ActionsPage.getLayout = (page) => <Layout title={"Actions"}>{page}</Layout>
+
+export default ActionsPage
+```
 [All done! Back to section 7](./README.md)
