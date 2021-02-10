@@ -115,4 +115,140 @@ LoginPage.getLayout = (page) => <Layout title="Log In">{page}</Layout>
 export default LoginPage
 ``` 
 
+3) Let's make our login form pritty! Open `./app/components/Form.tsx` and paste the following:
+```tsx
+import React, { useState, ReactNode, PropsWithoutRef } from "react"
+import { FormProvider, useForm, UseFormOptions } from "react-hook-form"
+import * as z from "zod"
+
+type FormProps<S extends z.ZodType<any, any>> = {
+	/** All your form fields */
+	children: ReactNode
+	/** Text to display in the submit button */
+	submitText: string
+	schema?: S
+	onSubmit: (values: z.infer<S>) => Promise<void | OnSubmitResult>
+	initialValues?: UseFormOptions<z.infer<S>>["defaultValues"]
+} & Omit<PropsWithoutRef<JSX.IntrinsicElements["form"]>, "onSubmit">
+
+type OnSubmitResult = {
+	FORM_ERROR?: string
+	[prop: string]: any
+}
+
+export const FORM_ERROR = "FORM_ERROR"
+
+export function Form<S extends z.ZodType<any, any>>({
+	children,
+	submitText,
+	schema,
+	initialValues,
+	onSubmit,
+	...props
+}: FormProps<S>) {
+	const ctx = useForm<z.infer<S>>({
+		mode: "onBlur",
+		resolver: async (values) => {
+			try {
+				if (schema) {
+					schema.parse(values)
+				}
+				return { values, errors: {} }
+			} catch (error) {
+				return { values: {}, errors: error.formErrors?.fieldErrors }
+			}
+		},
+		defaultValues: initialValues,
+	})
+	const [formError, setFormError] = useState<string | null>(null)
+
+	return (
+		<FormProvider {...ctx}>
+			<form
+				onSubmit={ctx.handleSubmit(async (values) => {
+					const result = (await onSubmit(values)) || {}
+					for (const [key, value] of Object.entries(result)) {
+						if (key === FORM_ERROR) {
+							setFormError(value)
+						} else {
+							ctx.setError(key as any, {
+								type: "submit",
+								message: value,
+							})
+						}
+					}
+				})}
+				className="form"
+				{...props}
+			>
+				{/* Form fields supplied as children are rendered here */}
+				{children}
+
+				{formError && (
+					<div role="alert" style={{ color: "red" }}>
+						{formError}
+					</div>
+				)}
+
+				<button
+					type="submit"
+					disabled={ctx.formState.isSubmitting}
+					className="bg-gradient-to-r from-purple-800 to-green-500 hover:from-pink-500 hover:to-green-500 text-white font-bold py-2 px-4 rounded focus:ring transform transition hover:scale-105 duration-300 ease-in-out"
+				>
+					{submitText}
+				</button>
+			</form>
+		</FormProvider>
+	)
+}
+
+export default Form
+```
+
+4) Then open `./app/components/LabeledTextField.tsx` and paste:
+```jsx
+import React, { PropsWithoutRef } from "react"
+import { useFormContext } from "react-hook-form"
+
+export interface LabeledTextFieldProps extends PropsWithoutRef<JSX.IntrinsicElements["input"]> {
+	/** Field name. */
+	name: string
+	/** Field label. */
+	label: string
+	/** Field type. Doesn't include radio buttons and checkboxes */
+	type?: "text" | "password" | "email" | "number"
+	outerProps?: PropsWithoutRef<JSX.IntrinsicElements["div"]>
+}
+
+export const LabeledTextField = React.forwardRef<HTMLInputElement, LabeledTextFieldProps>(
+	({ label, outerProps, ...props }, ref) => {
+		const {
+			register,
+			formState: { isSubmitting },
+			errors,
+		} = useFormContext()
+		const error = Array.isArray(errors[props.name])
+			? errors[props.name].join(", ")
+			: errors[props.name]?.message || errors[props.name]
+
+		return (
+			<div {...outerProps} className="mb-6 max-w-lg">
+				<label className="block w-full mb-1">
+					{label}
+					<input disabled={isSubmitting} {...props} ref={register} className="w-full p-1 pl-2 rounded-sm mt-2 text-black" />
+				</label>
+
+				{error && (
+					<div role="alert" className="text-red-600">
+						{error}
+					</div>
+				)}
+			</div>
+		)
+	}
+)
+
+export default LabeledTextField
+```
+
 Woohhooo you got here! Please [continue to section 5](../five)
