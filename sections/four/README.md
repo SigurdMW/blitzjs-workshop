@@ -75,7 +75,7 @@ const Layout = ({ title, children }: LayoutProps) => {
 					<div className="flex flex-shrink md:w-1/3 justify-center md:justify-start text-white">
 						<a href="/" className="flex w-12 justify-center">
 							<span className="text-xl pl-2">
-								<img src="/dotjs.png" alt="dotjs logo" />
+								<img src="/dotjs.svg" alt="dotjs logo" />
 							</span>
 						</a>
 					</div>
