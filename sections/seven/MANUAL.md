@@ -36,12 +36,11 @@ and replace the `User` model in the same file with this:
 ```tsx
 import { Suspense } from "react"
 import Layout from "app/layouts/Layout"
-import { Link, useQuery, useRouter, BlitzPage } from "blitz"
-import getTests from "app/tests/queries/getTests"
+import { Link, useQuery, BlitzPage } from "blitz"
+import getActivities from "app/activities/queries/getActivities"
 
-export const ActivityList = () => {
-  const router = useRouter()
-  const [{ activities }] = useQuery(getTests, {
+export const ActivityList = () => {  
+  const [{ activities }] = useQuery(getActivities, {
     orderBy: { id: "asc" }
   })
 
@@ -66,7 +65,7 @@ const ActivitiesPage: BlitzPage = () => (
 
 ActivitiesPage.getLayout = (page) => <Layout title="Activities">{page}</Layout>
 
-export default TestsPage
+export default ActivitiesPage
 ```
 
 
