@@ -1,4 +1,6 @@
 # Using the CLI to create features in Blitz
+
+## Generate and setup database schema
 We're using the CLI to generate all the files needed for out `action` feature.
 1) Run `blitz generate all action`. This will generate the form, pages, queries, and mutations we need to add basic CRUD in our feature.
 2) Even though the CLI is pretty sweet, it can't know what our database should look like. Open `./db/schema.prisma` and add the following in the `Action` model:
@@ -33,4 +35,7 @@ model User {
 ```
 3) Run `blitz prisma migrate dev --preview-feature` to migrate the database!
 4) Now start the server `blitz start`
+5) Go to [http://localhost:3000/actions](http://localhost:3000/actions) and make sure you get the generated actions page. It doesn't look good, but let's fix that next!
+
+## Styles and cleanup
 [All done! Back to section 7](./README.md)
