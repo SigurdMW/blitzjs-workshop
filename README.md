@@ -20,6 +20,7 @@ Hosting a Blitz app in Azure
 * [Section 4 - Setup database structure](/sections/four)
 * [Section 5 - Auth and layout setup](/sections/five)
 * [Section 6 - Gentle intro to Blitz Console](/sections/six)
+* [Section 7 - Add user name when creating new user](/sections/seven)
 
 ## Workshop repo
 See the different sections as branches in this repo: https://github.com/SigurdMW/dotjs-leaderboard
