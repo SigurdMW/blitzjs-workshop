@@ -97,7 +97,7 @@ const Layout = ({ title, children }: LayoutProps) => {
 export default Layout
 ```
 
-2) Open `./app/auth/pages/login.tsx` and make sure it looks like this:
+2) Open `./app/auth/pages/login.tsx` and make sure it looks like this (there is a slight problem at this point - the header does not reflect the login state before we refresh the page):
 ```tsx
 import React from "react"
 import { useRouter, BlitzPage } from "blitz"
