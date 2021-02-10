@@ -335,4 +335,23 @@ export default async function updateActivity({data, id}: { data: ActivityInputTy
 	return activity
 }
 ```
+
+4) We need a way to get the activity from the server as well! Create the file `./app/activities/queries/getActivity.ts`:
+```ts
+import { Ctx } from "blitz"
+import db from "db"
+
+export default async function getActivity(
+	id: number,
+	ctx: Ctx
+) {
+	ctx.session.authorize()
+
+	const activities = await db.activity.findFirst({
+		where: { id }
+	})
+
+	return activities
+}
+```
 [All done! Back to section 7](./README.md)
