@@ -18,6 +18,8 @@ Hosting a Blitz app in Azure
 * [Section 2 - Up and running with Blitz](/sections/two)
 * [Section 3 - Setup Tailwind CSS](/sections/three)
 * [Section 4 - Setup database structure](/sections/four)
+* [Section 5 - Auth and layout setup](/sections/five)
+* [Section 6 - Gentle intro to Blitz Console](/sections/six)
 
 ## Workshop repo
 See the different sections as branches in this repo: https://github.com/SigurdMW/dotjs-leaderboard
