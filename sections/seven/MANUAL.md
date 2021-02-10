@@ -170,12 +170,13 @@ import { ActivityInput, ActivityInputType } from "../validations"
 type ActivityFormProps = {
 	onSubmit: (value: ActivityInputType) => any
 	initialValues: ActivityInputType
+	submitText?: string
 }
 
 export const ActivityForm: FC<ActivityFormProps> = (props) => {
 	return (
 		<Form
-			submitText="Create"
+			submitText={props.submitText || "Create"}
 			schema={ActivityInput}
 			{...props}
 		>
