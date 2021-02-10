@@ -107,7 +107,7 @@ const Layout = ({ title, children }: LayoutProps) => {
 export default Layout
 ```
 2) Add the awesome logo. Create a file named `./public/dotjs.svg` with the following content:
-```svg
+```html
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1911" width="40" height="40" data-name="Layer 1"><defs><linearGradient gradientTransform="translate(1.967 2.719)" gradientUnits="userSpaceOnUse" y2="1870.31" x2="1877.42" y1="32.07" x1="39.18" id="a"><stop stop-color="#29abe2" offset="0"/><stop stop-color="#59b9ae" offset=".29"/><stop stop-color="#d0dd2a" offset=".95"/><stop stop-color="#d9e021" offset="1"/></linearGradient></defs><path fill="#fffff9" d="M175.597 401.816h1553.478v1075.728H175.597z"/><path d="M1838.967 18.049H81.557a57.15 57.15 0 00-57.15 57.15v1757.41a57.16 57.16 0 0057.15 57.16h1757.41a57.16 57.16 0 0057.16-57.16V75.199a57.16 57.16 0 00-57.16-57.15zm-1325.58 1376.67c-68.21 0-124.18-55.1-124.18-123.31 0-68.21 56-124.17 124.18-124.17s124.17 56 124.17 124.17-55.97 123.31-124.17 123.31zm523.12-448.62c0 244.91-140.79 444.05-313.06 444.05h-21.86v-240.81h21.86c50.72 0 94.44-130.3 94.44-203.28v-432.92h218.62zm494.82-212.13h-21.86c-51.6 0-95.32 43.72-95.32 94.44v248.31c0 173.14-140.79 313.06-313.07 313.06h-21.86v-218.61h21.86c50.72 0 94.45-42.85 94.45-94.44v-248.36c0-172.27 140.79-313.06 313.94-313.06h21.86z" fill="url(#a)"/></svg>
 ```
 
