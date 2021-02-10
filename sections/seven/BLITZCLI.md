@@ -28,7 +28,7 @@ model User {
   sessions          Session[]
   createdActivities	Activity[]
   assignedActions		Action[] @relation("AssignedActions")
-  createdActions    Action[] @relateion("ActionCreatedBy")
+  createdActions    Action[] @relation("ActionCreatedBy")
 }
 ```
 3) Run `blitz prisma migrate dev --preview-feature` to migrate the database!
