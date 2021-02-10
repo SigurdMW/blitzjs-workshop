@@ -270,5 +270,25 @@ LoginPage.getLayout = (page) => <Layout title="Log In">{page}</Layout>
 
 export default LoginPage
 ```
+6) And do simiar for `./app/auth/pages/signup.tsx`:
+```tsx
+import React from "react"
+import { BlitzPage } from "blitz"
+import Layout from "app/layouts/Layout"
+import { SignupForm } from "app/auth/components/SignupForm"
+
+const SignupPage: BlitzPage = () => (
+	<>
+		<h1 className="text-6xl mb-10">Create account</h1>
+		<SignupForm onSuccess={() => {
+			window.location.href = "/"
+		}} />
+	</>
+)
+
+SignupPage.getLayout = (page) => <Layout title="Sign Up">{page}</Layout>
+
+export default SignupPage
+```
 
 Woohhooo you got here! Please [continue to section 5](../five)
