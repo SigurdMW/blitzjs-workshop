@@ -147,7 +147,7 @@ const NewActivityPage: BlitzPage = () => {
 				}}
 			/>
 
-			<p>
+			<p className="mt-10">
 				<Link href="/activities">
 					<a>Back to all activities</a>
 				</Link>
@@ -225,5 +225,114 @@ export const ActivityInput = z.object({
 	description: z.string().max(500).optional()
 })
 export type ActivityInputType = z.infer<typeof ActivityInput>
+```
+
+## View / Edit activity
+1) Create file `./app/activities/pages/activities/[activityId].tsx`. The name of the file, `[activityId]` is similar to route params in React-Router.
+```tsx
+import { FC, Suspense } from "react"
+import Layout from "app/layouts/Layout"
+import { Link, useRouter, useQuery, useParam, BlitzPage, useMutation } from "blitz"
+import deleteActivity from "app/activities/mutations/deleteActivity"
+import getActivity from "app/activities/queries/getActivity"
+import ActivityForm from "app/activities/components/ActivityForm"
+import updateActivity from "app/activities/mutations/updateActivity"
+
+export const Activity: FC<{id: number}> = ({ id }) => {
+	const router = useRouter()
+	const [activity, { refetch }] = useQuery(getActivity, id)
+	const [deleteMutation] = useMutation(deleteActivity)
+	const [updateMutation] = useMutation(updateActivity)
+	
+	if (!activity) return null
+	return (
+		<div>
+			<h1 className="text-6xl mb-10">{activity.name}</h1>
+
+			<div className="mb-10">
+				<ActivityForm
+					initialValues={{
+						name: activity.name,
+						description: activity.description || "",
+						points: activity.points.toString()
+					}}
+					onSubmit={async (values) => {
+						await updateMutation({ data: values, id })
+						await refetch()
+					}}
+					submitText="Update"
+				/>
+			</div>
+			<button
+				type="button"
+				className="bg-gradient-to-r from-red-800 to-red-500 hover:from-red-500 hover:to-red-500 text-white font-bold py-2 px-4 rounded focus:ring transform transition hover:scale-105 duration-300 ease-in-out"
+				onClick={async () => {
+					if (window.confirm(`Delete activity named "${activity.name}"?`)) {
+						await deleteMutation(id)
+						router.push("/activities")
+					}
+				}}
+			>
+				Delete
+      		</button>
+		</div>
+	)
+}
+
+const ShowEditActivity: BlitzPage = () => {
+	const activityId = useParam("activityId", "number")
+	if (!activityId) return null
+	return (
+		<div>
+			<Suspense fallback={<div>Loading...</div>}>
+				<Activity id={activityId} />
+			</Suspense>
+			<p className="mt-10">
+				<Link href="/activities">
+					<a>Back to activites</a>
+				</Link>
+			</p>
+		</div>
+	)
+}
+
+ShowEditActivity.getLayout = (page) => <Layout title="Show/Edit activity">{page}</Layout>
+
+export default ShowEditActivity
+```
+
+2) Let's start with the easiest, the `delete` mutation. Create a file `./app/activities/mutations/deleteActivity.ts`:
+```ts
+import { Ctx } from "blitz"
+import db from "db"
+
+export default async function deleteActivity(id: number, ctx: Ctx) {
+	ctx.session.authorize()
+
+	await db.activity.delete({
+		where: { id }
+	})
+}
+```
+
+3) Next mutation is `update`. Create file `./app/activities/mutations/updateActivity.ts`:
+```ts
+import { Ctx } from "blitz"
+import db from "db"
+import { ActivityInput, ActivityInputType } from "../validations"
+
+export default async function updateActivity({data, id}: { data: ActivityInputType, id: number }, ctx: Ctx) {
+	ctx.session.authorize()
+	const parsedData = ActivityInput.parse(data)
+
+	const points = parseInt(parsedData.points, 10)
+
+	const activity = await db.activity.update({ where: { id: id }, data: {
+		...parsedData,
+		points
+	} })
+
+	return activity
+}
 ```
 [All done! Back to section 7](./README.md)
