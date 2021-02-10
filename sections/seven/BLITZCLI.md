@@ -32,5 +32,5 @@ model User {
 }
 ```
 3) Run `blitz prisma migrate dev --preview-feature` to migrate the database!
-
+4) Now start the server `blitz start`
 [All done! Back to section 7](./README.md)
