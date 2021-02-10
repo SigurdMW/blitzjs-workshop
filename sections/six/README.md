@@ -1,29 +1,90 @@
-# Section 6 - Gentle intro to Blitz Console
-Blitz comes with a sweet [console](https://blitzjs.com/docs/cli-console). The console can be really handy when working on you app. It gives you the ability to interact with the database and run some parts of your application in a shell.
+# Section 6 - Add user name when creating new user
+1) Update the file `./app/auth/components/SignupForm.tsx` to add the `LabeledTextField` component for name and `name` in `initialValues`. Typescript will scream at us since `name` is not in the schema (we will fix that in step 2):
+```tsx
+import React from "react"
+import { useMutation } from "blitz"
+import { LabeledTextField } from "app/components/LabeledTextField"
+import { Form, FORM_ERROR } from "app/components/Form"
+import signup from "app/auth/mutations/signup"
+import { SignupInput } from "app/auth/validations"
 
-Here are some key commands you can run with the console. These are the same as we'll later use in code:
-* `await db.user.findMany()` // Finds many records
-* `await db.user.findFirst()`, ie `await db.user.findFirst({ where: {id: 1} })` // Finds one record
-* `await db.user.deleteMany()` // Deletes all users
-* `await db.user.delete()`, ie `await db.user.delete({ where: {id: 1} })`
-* `await db.user.create()`, ie `await db.user.create({ data: {email: "someemail@gmail.com", password: "asdasdsa", name: "Test"} })`
-* `await db.user.update()`, ie `await db.user.update({ where: {id: 1}, data: {name: "new name"} })`
+type SignupFormProps = {
+	onSuccess?: () => void
+}
 
-## Start the console
-1) Run command `blitz console`. You should see this when the console is ready: 
-![console](./console.png)
+export const SignupForm = (props: SignupFormProps) => {
+	const [signupMutation] = useMutation(signup)
 
-> The blitz console supports top-level `await`. So you can `await new Promise((res) => res(console.log("worked")))` without wrapping it in async function 🔥
-2) Run command `await db.user.findMany()`. You should see a list of all the users in the database.
+	return (
+		<Form
+			submitText="Create Account"
+			schema={SignupInput}
+			initialValues={{ email: "", password: "", name: "" }}
+			onSubmit={async (values) => {
+				try {
+					await signupMutation(values)
+					props.onSuccess?.()
+				} catch (error) {
+					if (error.code === "P2002" && error.meta?.target?.includes("email")) {
+						// This error comes from Prisma
+						return { email: "This email is already being used" }
+					} else {
+						return { [FORM_ERROR]: error.toString() }
+					}
+				}
+			}}
+		>
+			<LabeledTextField name="name" label="Name" placeholder="Name" />
+			<LabeledTextField name="email" label="Email" placeholder="Email" />
+			<LabeledTextField name="password" label="Password" placeholder="Password" type="password" />
+		</Form>
+	)
+}
 
-## Fixing a problem
-Right now, our application has a problem. When creating a user through the UI and logging in, there is no name to display: 
-![header](./header.png)
-We don't have a field for adding the users name. We will fix that later, but for now - let's fix this using the Blitz console. 
+export default SignupForm
+```
+2) Open the file `./app/auth/validations.ts`. This file contains the [`zod`](https://www.npmjs.com/package/zod) schema for our form. We use `zod` to create schemas to validate our data and infer the types in typescript. Let's add `name` in the `SignupInput`:
+```ts
+import * as z from "zod"
 
-1) Start `blitz console`
-2) Find the id of the user you created by running `await db.user.findFirst({ where: {email: "<YOUREMAIL>"}})`
-3) Grab the id if your user, and run `await db.user.update({where: {id: <YOUID>}, data: {name: "<YOURNAME>"} })`
-4) Go back to the application running on localhost, and see that the name appears in the header (might need to refresh)
+export const SignupInput = z.object({
+  email: z.string().email(),
+  password: z.string().min(10).max(100),
+  name: z.string().min(2).max(100)
+})
+export type SignupInputType = z.infer<typeof SignupInput>
 
-[Nice! Move on to section 7](../seven)
+export const LoginInput = z.object({
+  email: z.string().email(),
+  password: z.string(),
+})
+export type LoginInputType = z.infer<typeof LoginInput>
+```
+
+3) We now have the form we need and a way to validate it, but the function that creates the database record does not receive the new data. Let's make that happen.
+Open `./app/auth/mutations/signup.ts`. A mutation is an async function that receives arguments that you provide in addition to the Blitz context. The context contains the session of the user (among other things). Update the file to include `name`:
+```ts
+import { Ctx, SecurePassword } from "blitz"
+import db from "db"
+import { SignupInput, SignupInputType } from "app/auth/validations"
+
+export default async function signup(input: SignupInputType, { session }: Ctx) {
+  // This throws an error if input is invalid
+  const { email, password, name } = SignupInput.parse(input)
+
+  const hashedPassword = await SecurePassword.hash(password)
+  const user = await db.user.create({
+    data: { email: email.toLowerCase(), hashedPassword, role: "user", name },
+    select: { id: true, name: true, email: true, role: true },
+  })
+
+  await session.create({ userId: user.id, roles: [user.role] })
+
+  return user
+}
+```
+
+4) Make sure the dev server is running, create a new user and feast you eyes on the header with the `name` field 🎉
+![header with name](./header-with-name.png)
+
+Wow, what a blast! Now move on to [Section 7](../seven)

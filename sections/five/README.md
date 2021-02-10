@@ -1,124 +1,29 @@
-# Section Five - Auth and layout setup
-Now that we have set up Tailwind and the database structure, we're ready to start building the application. We start by making the header display link to login, register new user and  logout. In addition, we'll fix the forms so that they use Tailwind as well.
+# Section 5 - Gentle intro to Blitz Console
+Blitz comes with a sweet [console](https://blitzjs.com/docs/cli-console). The console can be really handy when working on you app. It gives you the ability to interact with the database and run some parts of your application in a shell.
 
-## Setting up the navbar
-The navbar should display login and signup when the visitor is not authenticated. When the user authenticates, let's display the name and a logout link in the header. 
-Let's make the required changes for this to happen:
-1) Open `./app/Layouts/Layout.tsx` and add the following:
-```tsx
-import React, { ReactNode, Suspense } from "react"
-import { Head, useMutation, Link } from "blitz"
-import { useCurrentUser } from "app/hooks/useCurrentUser"
-import logout from "app/auth/mutations/logout"
+Here are some key commands you can run with the console. These are the same as we'll later use in code:
+* `await db.user.findMany()` // Finds many records
+* `await db.user.findFirst()`, ie `await db.user.findFirst({ where: {id: 1} })` // Finds one record
+* `await db.user.deleteMany()` // Deletes all users
+* `await db.user.delete()`, ie `await db.user.delete({ where: {id: 1} })`
+* `await db.user.create()`, ie `await db.user.create({ data: {email: "someemail@gmail.com", password: "asdasdsa", name: "Test"} })`
+* `await db.user.update()`, ie `await db.user.update({ where: {id: 1}, data: {name: "new name"} })`
 
-type LayoutProps = {
-	title?: string
-	children: ReactNode
-}
+## Start the console
+1) Run command `blitz console`. You should see this when the console is ready: 
+![console](./console.png)
 
-const UnauthLinks = () => (
-	<ul className="list-reset flex justify-between flex-1 md:flex-none items-center">
-		<li className="flex-1 md:flex-none md:mr-3">
-			<Link href="/signup">
-				<a className="inline-block py-2 px-4 text-white no-underline">
-					Sign Up
-					</a>
-			</Link>
-		</li>
-		<li className="flex-1 md:flex-none md:mr-3">
-			<Link href="/login">
-				<a className="inline-block no-underline text-white hover:text-gray-200 hover:text-underline py-2 px-4">
-					Login
-				</a>
-			</Link>
-		</li>
-	</ul>
-)
+> The blitz console supports top-level `await`. So you can `await new Promise((res) => res(console.log("worked")))` without wrapping it in async function 🔥
+2) Run command `await db.user.findMany()`. You should see a list of all the users in the database.
 
-const HeaderLinks = () => {
-	const currentUser = useCurrentUser()
-	const [logoutMutation] = useMutation(logout)
+## Fixing a problem
+Right now, our application has a problem. When creating a user through the UI and logging in, there is no name to display: 
+![header](./header.png)
+We don't have a field for adding the users name. We will fix that later, but for now - let's fix this using the Blitz console. 
 
-	if (currentUser) {
-		return (
-			<ul className="list-reset flex justify-between flex-1 md:flex-none items-center">
-				<li className="flex-1 md:flex-none md:mr-3">
-					<span className="inline-block py-2 px-4 text-white no-underline">
-						{currentUser.name || "Noname"}
-					</span>
-				</li>
-				<li className="flex-1 md:flex-none md:mr-3">
-					<button
-						className="inline-block no-underline text-white hover:text-gray-200 hover:text-underline py-2 px-4"
-						onClick={async () => {
-							await logoutMutation()
-						}}
-					>
-						Logout
-					</button>
-				</li>
-			</ul>
-		)
-	}
-	return <UnauthLinks />
-}
+1) Start `blitz console`
+2) Find the id of the user you created by running `await db.user.findFirst({ where: {email: "<YOUREMAIL>"}})`
+3) Grab the id if your user, and run `await db.user.update({where: {id: <YOUID>}, data: {name: "<YOURNAME>"} })`
+4) Go back to the application running on localhost, and see that the name appears in the header (might need to refresh)
 
-const Layout = ({ title, children }: LayoutProps) => {
-	return (
-		<>
-			<Head>
-				<title>{title || "dotjs-leaderboardd"}</title>
-				<link rel="icon" href="/favicon.ico" />
-			</Head>
-			<nav className="bg-gray-800 pt-2 md:pt-1 pb-1 px-1 mt-0 h-auto fixed w-full z-20 top-0">
-				<div className="flex flex-wrap items-center">
-					<div className="flex flex-shrink md:w-1/3 justify-center md:justify-start text-white">
-						<a href="/" className="flex w-12 justify-center">
-							<span className="text-xl pl-2">
-								<img src="/dotjs.png" alt="dotjs logo" />
-							</span>
-						</a>
-					</div>
-					<div className="flex flex-1 md:w-1/3 justify-center md:justify-start text-white px-2"></div>
-					<div className="flex w-full pt-2 content-center justify-between md:w-1/3 md:justify-end">
-						<Suspense fallback={<UnauthLinks />}>
-							<HeaderLinks />
-						</Suspense>
-					</div>
-				</div>
-			</nav>
-			<div className="flex flex-col md:flex-row mt-24">
-				<div className="container mx-auto">{children}</div>
-			</div>
-		</>
-	)
-}
-
-export default Layout
-```
-
-2) Open `./app/auth/pages/login.tsx` and make sure it looks like this:
-```tsx
-import React from "react"
-import { useRouter, BlitzPage } from "blitz"
-import Layout from "app/layouts/Layout"
-import { LoginForm } from "app/auth/components/LoginForm"
-
-const LoginPage: BlitzPage = () => {
-  const router = useRouter()
-
-  return (
-    <div>
-      <LoginForm onSuccess={() => {
-		  window.location.href = "/"
-	  }} />
-    </div>
-  )
-}
-
-LoginPage.getLayout = (page) => <Layout title="Log In">{page}</Layout>
-
-export default LoginPage
-``` 
-
-## Updating the Login / Register form
+[Nice! Move on to section 6](../six)

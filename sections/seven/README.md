@@ -1,90 +1,119 @@
-# Section Seven - Add user name when creating new user
-1) Update the file `./app/auth/components/SignupForm.tsx` to add the `LabeledTextField` component for name and `name` in `initialValues`. Typescript will scream at us since `name` is not in the schema (we will fix that in step 2):
-```tsx
-import React from "react"
-import { useMutation } from "blitz"
-import { LabeledTextField } from "app/components/LabeledTextField"
-import { Form, FORM_ERROR } from "app/components/Form"
-import signup from "app/auth/mutations/signup"
-import { SignupInput } from "app/auth/validations"
+# Section 7 - Database setup
+Since Blitz is using [`prisma`](https://www.prisma.io/) as ORM for the database, we have a `schema.prisma` file in our Blitz app. The file contains the schema that is the basis for both our database structure and the generated Typescript types. Let's go ahead and see what we are going to make:
 
-type SignupFormProps = {
-	onSuccess?: () => void
+## Explanation of schema
+In the end-solution, an admin will be able to create activities. An activity has a name, the points the activity is rewarded with, and an optional description.
+Here is an example of an activity: 
+```json
+{
+	"id": 1,
+	"createdAt": "2021-02-10T13:08:38.402Z",
+  	"updatedAt": "2021-02-10T13:08:38.403Z",
+	"name": "Held a workshop",
+	"createdById": 2,
+	"description": "",
+	"points": 120
 }
-
-export const SignupForm = (props: SignupFormProps) => {
-	const [signupMutation] = useMutation(signup)
-
-	return (
-		<Form
-			submitText="Create Account"
-			schema={SignupInput}
-			initialValues={{ email: "", password: "", name: "" }}
-			onSubmit={async (values) => {
-				try {
-					await signupMutation(values)
-					props.onSuccess?.()
-				} catch (error) {
-					if (error.code === "P2002" && error.meta?.target?.includes("email")) {
-						// This error comes from Prisma
-						return { email: "This email is already being used" }
-					} else {
-						return { [FORM_ERROR]: error.toString() }
-					}
-				}
-			}}
-		>
-			<LabeledTextField name="name" label="Name" placeholder="Name" />
-			<LabeledTextField name="email" label="Email" placeholder="Email" />
-			<LabeledTextField name="password" label="Password" placeholder="Password" type="password" />
-		</Form>
-	)
-}
-
-export default SignupForm
 ```
-2) Open the file `./app/auth/validations.ts`. This file contains the [`zod`](https://www.npmjs.com/package/zod) schema for our form. We use `zod` to create schemas to validate our data and infer the types in typescript. Let's add `name` in the `SignupInput`:
-```ts
-import * as z from "zod"
-
-export const SignupInput = z.object({
-  email: z.string().email(),
-  password: z.string().min(10).max(100),
-  name: z.string().min(2).max(100)
-})
-export type SignupInputType = z.infer<typeof SignupInput>
-
-export const LoginInput = z.object({
-  email: z.string().email(),
-  password: z.string(),
-})
-export type LoginInputType = z.infer<typeof LoginInput>
-```
-
-3) We now have the form we need and a way to validate it, but the function that creates the database record does not receive the new data. Let's make that happen.
-Open `./app/auth/mutations/signup.ts`. A mutation is an async function that receives arguments that you provide in addition to the Blitz context. The context contains the session of the user (among other things). Update the file to include `name`:
-```ts
-import { Ctx, SecurePassword } from "blitz"
-import db from "db"
-import { SignupInput, SignupInputType } from "app/auth/validations"
-
-export default async function signup(input: SignupInputType, { session }: Ctx) {
-  // This throws an error if input is invalid
-  const { email, password, name } = SignupInput.parse(input)
-
-  const hashedPassword = await SecurePassword.hash(password)
-  const user = await db.user.create({
-    data: { email: email.toLowerCase(), hashedPassword, role: "user", name },
-    select: { id: true, name: true, email: true, role: true },
-  })
-
-  await session.create({ userId: user.id, roles: [user.role] })
-
-  return user
+An action is what connects a user and an activity.
+Here is an example of an action:
+```json
+{
+	"id": 1,
+	"createdAt": "2021-02-10T13:08:38.402Z",
+  	"updatedAt": "2021-02-10T13:08:38.403Z",
+	"createdById": 1,
+	"userId": 2,
+	"activityId": 3
 }
 ```
 
-4) Make sure the dev server is running, create a new user and feast you eyes on the header with the `name` field 🎉
-![header with name](./header-with-name.png)
+We'll lookat two different ways of adding features to the app. With a feature, I mean database schema, queries, mutations and pages needed for a specific functionality.
 
-Wow, what a blast! Now move on to [Section 8](../eight)
+There are two ways we'll have a look at: 
+1) Manual (good old)
+2) Using the [Blitz CLI generate option](https://blitzjs.com/docs/cli-generate)
+
+## Option 1 - The manual way
+[Let's create the feature for `activity` in a manual way](./MANUAL.md)
+
+## Option 2 - Using the Blitz CLI
+[Let's create the feature for `action` using the Blitz CLI](./BLITZCLI.md)
+
+## Update Prisma Schema
+Open file `./db/schema.prisma`. Replace the content of the file with the following:
+```prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// --------------------------------------
+
+model User {
+  id             Int       @default(autoincrement()) @id
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  name           String?
+  email          String    @unique
+  hashedPassword String?
+  role           String    @default("user")
+  sessions       Session[]
+  assignedActions		 Action[] @relation("AssignedActions")
+  createdActivities	Activity[] @relation("ActivityCreatedBy")
+  createdActions Action[] @relateion("ActionCreatedBy")
+}
+
+model Session {
+  id                 Int       @default(autoincrement()) @id
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  expiresAt          DateTime?
+  handle             String    @unique
+  user               User?     @relation(fields: [userId], references: [id])
+  userId             Int?
+  hashedSessionToken String?
+  antiCSRFToken      String?
+  publicData         String?
+  privateData        String?
+}
+
+model Activity {
+  id        Int      @default(autoincrement()) @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdByUser	User		@relation("ActivityCreatedBy", fields: [createdById], references: [id])
+  createdById	Int
+  points    Int
+  name		String
+  description	String?
+}
+
+model Action {
+  id        Int      @default(autoincrement()) @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdByUser User @relation("ActionCreatedBy", fields: [createdById], references: [id])
+  createdById: Int
+  user		User	 @relation("AssignedActions", fields: [userId], references: [id])
+  userId	Int
+  activity	Activity	@relation(fields: [activityId], references: [id])
+  activityId Int
+}
+```
+
+
+
+## Run the generation
+Run `blitz prisma migrate dev --preview-feature` to run the database migration. This performs the needed changes to our database and generates the typescript files. When prompted for name, just hit enter (just using the default name).
+
+Start the server with `blitz start` to verify that no errors occur.
+
+Pritty sweet, right? [Continue to next section](../eight)

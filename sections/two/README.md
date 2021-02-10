@@ -8,4 +8,6 @@
 If you visit [http://localhost:3000/](http://localhost:3000/) and see this, you have successfully started Blitz:
 ![Success!](./blitz.png)
 
+**WIN** Already at this point, we have a working authentication and session management. Create a user and log in, you'll see 🏆
+
 Congratz! Move on to [Section Three](../three)
