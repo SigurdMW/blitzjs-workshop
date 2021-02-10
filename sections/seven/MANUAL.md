@@ -355,4 +355,5 @@ export default async function getActivity(
 	return activities
 }
 ```
-Ok that was quite a lot😅 But hopefully you start to see a pattern. Let's now try to do it the simple way - using the CLI. [Back to section 7](./README.md)
+Ok that was quite a lot😅 But hopefully you start to see a pattern. Let's now try to do it the simple way - using the CLI. 
+[Back to section 7](./README.md)
