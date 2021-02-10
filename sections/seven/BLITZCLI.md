@@ -8,7 +8,7 @@ model Action {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   createdByUser User     @relation("ActionCreatedBy", fields: [createdById], references: [id])
-  createdById:  Int
+  createdById   Int
   user		      User	   @relation("AssignedActions", fields: [userId], references: [id])
   userId	      Int
   activity	    Activity @relation(fields: [activityId], references: [id])
