@@ -60,6 +60,7 @@ export const LoginInput = z.object({
 })
 export type LoginInputType = z.infer<typeof LoginInput>
 ```
+Nice! Typescript should be happy with us again, please check that before proceeding.
 
 3) We now have the form we need and a way to validate it, but the function that creates the database record does not receive the new data. Let's make that happen.
 Open `./app/auth/mutations/signup.ts`. A mutation is an async function that receives arguments that you provide in addition to the Blitz context. The context contains the session of the user (among other things). Update the file to include `name`:
