@@ -100,16 +100,14 @@ export default Layout
 2) Open `./app/auth/pages/login.tsx` and make sure it looks like this (there is a slight problem at this point - the header does not reflect the login state before we refresh the page):
 ```tsx
 import React from "react"
-import { useRouter, BlitzPage } from "blitz"
+import { BlitzPage } from "blitz"
 import Layout from "app/layouts/Layout"
 import { LoginForm } from "app/auth/components/LoginForm"
 
 const LoginPage: BlitzPage = () => (
-    <div>
-      <LoginForm onSuccess={() => {
-		  window.location.href = "/"
-	  }} />
-    </div>
+	<LoginForm onSuccess={() => {
+		window.location.href = "/"
+	}} />
 )
 
 LoginPage.getLayout = (page) => <Layout title="Log In">{page}</Layout>
