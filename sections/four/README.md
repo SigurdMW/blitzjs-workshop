@@ -104,17 +104,13 @@ import { useRouter, BlitzPage } from "blitz"
 import Layout from "app/layouts/Layout"
 import { LoginForm } from "app/auth/components/LoginForm"
 
-const LoginPage: BlitzPage = () => {
-  const router = useRouter()
-
-  return (
+const LoginPage: BlitzPage = () => (
     <div>
       <LoginForm onSuccess={() => {
 		  window.location.href = "/"
 	  }} />
     </div>
-  )
-}
+)
 
 LoginPage.getLayout = (page) => <Layout title="Log In">{page}</Layout>
 
