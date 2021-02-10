@@ -31,13 +31,13 @@ Here is an example of an action:
 We'll lookat two different ways of adding features to the app. With a feature, I mean database schema, queries, mutations and pages needed for a specific functionality.
 
 There are two ways we'll have a look at: 
-1) Manual (good old)
+1) Manual (good old - create all the files yourself)
 2) Using the [Blitz CLI generate option](https://blitzjs.com/docs/cli-generate)
 
-## Option 1 - The manual way
+## The manual way
 [Let's create the feature for `activity` in a manual way](./MANUAL.md)
 
-## Option 2 - Using the Blitz CLI
+## Using the Blitz CLI
 [Let's create the feature for `action` using the Blitz CLI](./BLITZCLI.md)
 
 ## Update Prisma Schema
