@@ -110,4 +110,120 @@ export default async function getActivities(
 }
 ```
 
+Nice! Now we can go to [http://localhost:3000/activities](http://localhost:3000/activities) and see the page. But we're not there yet! Let's continue to create a form for create a activity.
+
+## Make a new activty
+To create a new activity, we want the following:
+* A page /activities/new
+* A form (reusable, so it also can be used for editing)
+* A mutation (a way to handle the "server" things, like making sure the user is logged in, talk to the database etc)
+* A way to validate our data, in this case a `zod` schema
+
+1) Let's start with the page. Create file `./app/activities/pages/activities/new.tsx`:
+```tsx
+import Layout from "app/layouts/Layout"
+import { Link, useRouter, useMutation, BlitzPage } from "blitz"
+import createActivity from "app/activities/mutations/createActivity"
+import ActivityForm from "app/activities/components/ActivityForm"
+import { FORM_ERROR } from "app/components/Form"
+
+const NewActivityPage: BlitzPage = () => {
+	const router = useRouter()
+	const [createActivityMutation] = useMutation(createActivity)
+	return (
+		<>
+			<h1 className="text-6xl mb-10">New activity</h1>
+			<ActivityForm
+				initialValues={{ name: "", points: "0", description: ""}}
+				onSubmit={async (values) => {
+					try {
+						const activity = await createActivityMutation(values)
+						router.push(`/activities/${activity.id}`)
+					} catch (error) {
+						return {
+							[FORM_ERROR]: error.message || error.toString()
+						}
+					}
+				}}
+			/>
+
+			<p>
+				<Link href="/activities">
+					<a>Back to all activities</a>
+				</Link>
+			</p>
+		</>
+	)
+}
+
+NewActivityPage.getLayout = (page) => <Layout title={"Create New Test"}>{page}</Layout>
+
+export default NewActivityPage
+```
+2) Then create the ActivityForm `./app/activities/components/ActivityForm.tsx`: 
+```tsx
+import React, { FC } from "react"
+import { LabeledTextField } from "app/components/LabeledTextField"
+import { Form } from "app/components/Form"
+import { ActivityInput, ActivityInputType } from "../validations"
+
+type ActivityFormProps = {
+	onSubmit: (value: ActivityInputType) => any
+	initialValues: ActivityInputType
+}
+
+export const ActivityForm: FC<ActivityFormProps> = (props) => {
+	return (
+		<Form
+			submitText="Create"
+			schema={ActivityInput}
+			{...props}
+		>
+			<LabeledTextField name="name" label="Activity name" placeholder="Name" />
+			<LabeledTextField name="points" label="Points" placeholder="Points" type="number" />
+		</Form>
+	)
+}
+
+export default ActivityForm
+```
+3) Let's do the mutation. Create a file `./app/activities/mutations/createActivity.ts`:
+```ts
+import { Ctx } from "blitz"
+import db from "db"
+import { ActivityInput, ActivityInputType } from "../validations"
+
+export default async function createActivity(data: ActivityInputType, ctx: Ctx) {
+	ctx.session.authorize()
+	const parsedData = ActivityInput.parse(data)
+
+	const points = parseInt(parsedData.points, 10)
+
+	const activity = await db.activity.create({ data: {
+		...parsedData,
+		points,
+		createdBy: {
+			connect: {
+				id: ctx.session.userId
+			}
+		}
+	} })
+
+	return activity
+}
+```
+4) Validation. Create file `./app/activities/validations.ts`::
+```ts
+import * as z from "zod"
+
+export const ActivityInput = z.object({
+	points: z.string()
+		.refine((p) => !isNaN(parseInt(p, 10)), "Value must be a number")
+		.refine((p) => parseInt(p, 10) >= 0, "Value must be greater than 0")
+		.refine((p) => parseInt(p, 10) <= 9999, "Value must be less than 9999"),
+	name: z.string().min(2).max(100),
+	description: z.string().max(500).optional()
+})
+export type ActivityInputType = z.infer<typeof ActivityInput>
+```
 [All done! Back to section 7](./README.md)
