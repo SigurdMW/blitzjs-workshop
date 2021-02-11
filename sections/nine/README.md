@@ -167,3 +167,23 @@ const ActivitySelect: FC<Omit<ActivitySelectFieldProps, "activities">> = (props)
 
 export default ActivitySelect
 ```
+
+> Getting lint errors after adding these components? See below
+
+I took a quick fix and updated `.eslintrc.js` to get rid of the errors:
+```js
+module.exports = {
+  env: {
+    es2020: true,
+  },
+  extends: ['react-app', 'plugin:jsx-a11y/recommended'],
+  plugins: ['jsx-a11y'],
+  rules: {
+    "import/no-anonymous-default-export": "error",
+    'import/no-webpack-loader-syntax': 'off',
+    'react/react-in-jsx-scope': 'off', // React is always in scope with Blitz
+    'jsx-a11y/anchor-is-valid': 'off', //Doesn't play well with Blitz/Next <Link> usage
+	'jsx-a11y/no-onchange': 'off'
+  },
+}
+```
