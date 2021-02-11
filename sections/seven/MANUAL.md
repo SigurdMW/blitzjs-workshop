@@ -128,32 +128,32 @@ import ActivityForm from "app/activities/components/ActivityForm"
 import { FORM_ERROR } from "app/components/Form"
 
 const NewActivityPage: BlitzPage = () => {
-	const router = useRouter()
-	const [createActivityMutation] = useMutation(createActivity)
-	return (
-		<>
-			<h1 className="text-6xl mb-10">New activity</h1>
-			<ActivityForm
-				initialValues={{ name: "", points: "0", description: ""}}
-				onSubmit={async (values) => {
-					try {
-						const activity = await createActivityMutation(values)
-						router.push(`/activities/${activity.id}`)
-					} catch (error) {
-						return {
-							[FORM_ERROR]: error.message || error.toString()
-						}
-					}
-				}}
-			/>
+  const router = useRouter()
+  const [createActivityMutation] = useMutation(createActivity)
+  return (
+    <>
+      <h1 className="text-6xl mb-10">New activity</h1>
+      <ActivityForm
+        initialValues={{ name: "", points: 0, description: "" }}
+        onSubmit={async (values) => {
+          try {
+            const activity = await createActivityMutation(values)
+            router.push(`/activities/${activity.id}`)
+          } catch (error) {
+            return {
+              [FORM_ERROR]: error.message || error.toString(),
+            }
+          }
+        }}
+      />
 
-			<p className="mt-10">
-				<Link href="/activities">
-					<a>Back to all activities</a>
-				</Link>
-			</p>
-		</>
-	)
+      <p className="mt-10">
+        <Link href="/activities">
+          <a>Back to all activities</a>
+        </Link>
+      </p>
+    </>
+  )
 }
 
 NewActivityPage.getLayout = (page) => <Layout title={"Create New Test"}>{page}</Layout>
@@ -235,62 +235,62 @@ import getActivity from "app/activities/queries/getActivity"
 import ActivityForm from "app/activities/components/ActivityForm"
 import updateActivity from "app/activities/mutations/updateActivity"
 
-export const Activity: FC<{id: number}> = ({ id }) => {
-	const router = useRouter()
-	const [activity, { refetch }] = useQuery(getActivity, id)
-	const [deleteMutation] = useMutation(deleteActivity)
-	const [updateMutation] = useMutation(updateActivity)
-	
-	if (!activity) return null
-	return (
-		<div>
-			<h1 className="text-6xl mb-10">{activity.name}</h1>
+export const Activity: FC<{ id: number }> = ({ id }) => {
+  const router = useRouter()
+  const [activity, { refetch }] = useQuery(getActivity, id)
+  const [deleteMutation] = useMutation(deleteActivity)
+  const [updateMutation] = useMutation(updateActivity)
 
-			<div className="mb-10">
-				<ActivityForm
-					initialValues={{
-						name: activity.name,
-						description: activity.description || "",
-						points: activity.points.toString()
-					}}
-					onSubmit={async (values) => {
-						await updateMutation({ data: values, id })
-						await refetch()
-					}}
-					submitText="Update"
-				/>
-			</div>
-			<button
-				type="button"
-				className="bg-gradient-to-r from-red-800 to-red-500 hover:from-red-500 hover:to-red-500 text-white font-bold py-2 px-4 rounded focus:ring transform transition hover:scale-105 duration-300 ease-in-out"
-				onClick={async () => {
-					if (window.confirm(`Delete activity named "${activity.name}"?`)) {
-						await deleteMutation(id)
-						router.push("/activities")
-					}
-				}}
-			>
-				Delete
-      		</button>
-		</div>
-	)
+  if (!activity) return null
+  return (
+    <div>
+      <h1 className="text-6xl mb-10">{activity.name}</h1>
+
+      <div className="mb-10">
+        <ActivityForm
+          initialValues={{
+            name: activity.name,
+            description: activity.description || "",
+            points: activity.points,
+          }}
+          onSubmit={async (values) => {
+            await updateMutation({ data: values, id })
+            await refetch()
+          }}
+          submitText="Update"
+        />
+      </div>
+      <button
+        type="button"
+        className="bg-gradient-to-r from-red-800 to-red-500 hover:from-red-500 hover:to-red-500 text-white font-bold py-2 px-4 rounded focus:ring transform transition hover:scale-105 duration-300 ease-in-out"
+        onClick={async () => {
+          if (window.confirm(`Delete activity named "${activity.name}"?`)) {
+            await deleteMutation(id)
+            router.push("/activities")
+          }
+        }}
+      >
+        Delete
+      </button>
+    </div>
+  )
 }
 
 const ShowEditActivity: BlitzPage = () => {
-	const activityId = useParam("activityId", "number")
-	if (!activityId) return null
-	return (
-		<div>
-			<Suspense fallback={<div>Loading...</div>}>
-				<Activity id={activityId} />
-			</Suspense>
-			<p className="mt-10">
-				<Link href="/activities">
-					<a>Back to activites</a>
-				</Link>
-			</p>
-		</div>
-	)
+  const activityId = useParam("activityId", "number")
+  if (!activityId) return null
+  return (
+    <div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Activity id={activityId} />
+      </Suspense>
+      <p className="mt-10">
+        <Link href="/activities">
+          <a>Back to activites</a>
+        </Link>
+      </p>
+    </div>
+  )
 }
 
 ShowEditActivity.getLayout = (page) => <Layout title="Show/Edit activity">{page}</Layout>
@@ -318,16 +318,17 @@ import { Ctx } from "blitz"
 import db from "db"
 import { ActivityInput, ActivityInputType } from "../validations"
 
-export default async function updateActivity({data, id}: { data: ActivityInputType, id: number }, ctx: Ctx) {
+export default async function updateActivity(
+	{ data, id }: { data: ActivityInputType; id: number },
+	ctx: Ctx
+) {
 	ctx.session.authorize()
 	const parsedData = ActivityInput.parse(data)
 
-	const points = parseInt(parsedData.points, 10)
-
-	const activity = await db.activity.update({ where: { id: id }, data: {
-		...parsedData,
-		points
-	} })
+	const activity = await db.activity.update({
+		where: { id: id },
+		data: parsedData
+	})
 
 	return activity
 }
