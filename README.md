@@ -25,6 +25,7 @@ Hosting a Blitz app in Azure
 * [Section 7 - Setup database structure](/sections/seven)
 * [Section 8 - Leaderboard setup](/sections/eight)
 * [Section 9 - UI Improvements](/sections/nine)
+* [Section 10 - Simple user rights](/sections/ten)
 
 ## Workshop repo
 See the different sections as branches in this repo: https://github.com/SigurdMW/dotjs-leaderboard

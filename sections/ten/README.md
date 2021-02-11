@@ -1,0 +1,1 @@
+# Section 10 - Simple user rights
