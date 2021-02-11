@@ -35,12 +35,7 @@ export const Leaderboard = () => {
 						</td>
 						<td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
 							<div className="flex items-center">
-								<div className="flex-shrink-0 w-10 h-10">
-									<img className="w-full h-full rounded-full" src="https://placehold.it/300x300" alt="" />
-								</div>
-								<div className="ml-3">
-									<p className="text-gray-900 whitespace-no-wrap">{row.name || row.email}</p>
-								</div>
+								<p className="text-gray-900 whitespace-no-wrap">{row.name || row.email}</p>
 							</div>
 						</td>
 						<td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
