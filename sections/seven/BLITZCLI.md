@@ -44,59 +44,65 @@ The generated files are not using Tailwind like it should, so let's beautyfy it:
 ```tsx
 import { Suspense } from "react"
 import Layout from "app/layouts/Layout"
-import { Link, useQuery, BlitzPage } from "blitz"
-import getActivities from "app/activities/queries/getActivities"
+import { Link, BlitzPage, useQuery } from "blitz"
+import getActions from "app/actions/queries/getActions"
 
-const NewActivity = () => (
-	<Link href="/activities/new">
+const NewAction = () => (
+	<Link href="/actions/new">
 		<a className="bg-gradient-to-r from-purple-800 to-green-500 hover:from-pink-500 hover:to-green-500 text-white font-bold py-2 px-4 rounded focus:ring transform transition hover:scale-105 duration-300 ease-in-out">
-			New activity
-    </a>
+			New action
+	  	</a>
 	</Link>
 )
 
-export const ActivityList = () => {
-	const [activities] = useQuery(getActivities, {
-		orderBy: { id: "asc" },
+export const ActionsList = () => {
+	const [{ actions }] = useQuery(getActions, {
+		orderBy: { id: "asc" }
 	})
 
 	return (
 		<ul className="list-outside list-disc">
-			{activities.length ? (
-				<>
-					{activities.map((activity) => (
-						<li key={activity.id} className="mb-2 text-lg font-bold underline">
-							<Link href={`/activities/${activity.id}`}>
-								<a>{activity.name}</a>
-							</Link>
+			<>
+				{actions.length ? (
+					<>
+						{actions.map((action) => (
+							<li key={action.id} className="mb-2 text-lg font-bold underline">
+								<Link href={`/actions/${action.id}`}>
+									<a>{action.user.name || action.user.email} got points!</a>
+								</Link>
+							</li>
+						))}
+					</>
+				) : (
+						<li>
+							<div className="mb-4">There are no actions yet.</div>
+							<NewAction />
 						</li>
-					))}
-				</>
-			) : (
-				<li>
-					<div className="mb-4">There are no activities yet.</div>
-					<NewActivity />
-				</li>
-			)}
+					)}
+			</>
+
 		</ul>
 	)
 }
 
-const ActivitiesPage: BlitzPage = () => (
-	<>
-		<div className="flex justify-between mb-10 items-center">
-			<h1 className="text-6xl">Activities</h1>
-			<NewActivity />
+const ActionsPage: BlitzPage = () => {
+	return (
+		<div>
+			<div className="flex justify-between mb-10 items-center">
+				<h1 className="text-6xl">Actions</h1>
+				<NewAction />
+			</div>
+
+			<Suspense fallback={<div>Loading...</div>}>
+				<ActionsList />
+			</Suspense>
 		</div>
-		<Suspense fallback={<div>Loading...</div>}>
-			<ActivityList />
-		</Suspense>
-	</>
-)
+	)
+}
 
-ActivitiesPage.getLayout = (page) => <Layout title="Activities">{page}</Layout>
+ActionsPage.getLayout = (page) => <Layout title={"Actions"}>{page}</Layout>
 
-export default ActivitiesPage
+export default ActionsPage
 ```
 
 2) Update `./app/actions/queries/getActions.ts` so that we include the user and remove the pagination:
