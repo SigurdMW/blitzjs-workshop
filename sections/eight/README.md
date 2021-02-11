@@ -7,3 +7,5 @@ By now you might have understood quite a lot about how Blitz works.
 
 ## Setup the leaderboard
 [See how to set up the leaderboard here](./LEADERBOARD.md)
+
+Got the leaderboard working? [Move to section 9](../nine)
