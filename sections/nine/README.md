@@ -230,3 +230,5 @@ module.exports = {
   },
 }
 ```
+
+Nice! Let's check out [next section](../ten)
