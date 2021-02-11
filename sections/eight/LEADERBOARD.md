@@ -82,7 +82,7 @@ export default async function getLeaderboard(data: {}, ctx: Ctx) {
 	ctx.session.authorize()
 
 	const actions = await db.action.findMany({
-		include: { activity: true, user: true }
+		include: { activity: true, user: true },
 	})
 
 	const userScore = actions.reduce<Leaderboard>((leaderboard, item) => {
@@ -92,14 +92,14 @@ export default async function getLeaderboard(data: {}, ctx: Ctx) {
 		} else {
 			leaderboard[item.user.id] = {
 				...item.user,
-				points: item.activity.points
+				points: item.activity.points,
 			}
 		}
 		return leaderboard
 	}, {})
 
 	const leaderboard: UserWithPoints[] = Object.values(userScore)
-	return leaderboard.sort((a, b) => a.points > b.points ? 1 : 0)
+	return leaderboard.sort((a, b) => b.points - a.points)
 }
 ```
 
