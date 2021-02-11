@@ -44,68 +44,87 @@ The generated files are not using Tailwind like it should, so let's beautyfy it:
 ```tsx
 import { Suspense } from "react"
 import Layout from "app/layouts/Layout"
-import { Link, BlitzPage, useQuery } from "blitz"
-import getActions from "app/actions/queries/getActions"
+import { Link, useQuery, BlitzPage } from "blitz"
+import getActivities from "app/activities/queries/getActivities"
 
-const NewAction = () => (
-	<Link href="/actions/new">
+const NewActivity = () => (
+	<Link href="/activities/new">
 		<a className="bg-gradient-to-r from-purple-800 to-green-500 hover:from-pink-500 hover:to-green-500 text-white font-bold py-2 px-4 rounded focus:ring transform transition hover:scale-105 duration-300 ease-in-out">
-			New action
-	  </a>
+			New activity
+    </a>
 	</Link>
 )
 
-export const ActionsList = () => {
-	const [{ actions }] = useQuery(getActions, {
-		orderBy: { id: "asc" }
+export const ActivityList = () => {
+	const [activities] = useQuery(getActivities, {
+		orderBy: { id: "asc" },
 	})
 
 	return (
-		<ul>
-			<>
-				{actions.length ? (
-					<>
-						{actions.map((action) => (
-							<li key={action.id}>
-								<Link href={`/actions/${action.id}`}>
-									<a>{action.id}</a>
-								</Link>
-							</li>
-						))}
-					</>
-				) : (
-						<li>
-							<div className="mb-4">There are no actions yet.</div>
-							<NewAction />
+		<ul className="list-outside list-disc">
+			{activities.length ? (
+				<>
+					{activities.map((activity) => (
+						<li key={activity.id} className="mb-2 text-lg font-bold underline">
+							<Link href={`/activities/${activity.id}`}>
+								<a>{activity.name}</a>
+							</Link>
 						</li>
-					)}
-			</>
-
+					))}
+				</>
+			) : (
+				<li>
+					<div className="mb-4">There are no activities yet.</div>
+					<NewActivity />
+				</li>
+			)}
 		</ul>
 	)
 }
 
-const ActionsPage: BlitzPage = () => {
-	return (
-		<div>
-			<div className="flex justify-between mb-10 items-center">
-				<h1 className="text-6xl">Actions</h1>
-				<NewAction />
-			</div>
-
-			<Suspense fallback={<div>Loading...</div>}>
-				<ActionsList />
-			</Suspense>
+const ActivitiesPage: BlitzPage = () => (
+	<>
+		<div className="flex justify-between mb-10 items-center">
+			<h1 className="text-6xl">Activities</h1>
+			<NewActivity />
 		</div>
-	)
-}
+		<Suspense fallback={<div>Loading...</div>}>
+			<ActivityList />
+		</Suspense>
+	</>
+)
 
-ActionsPage.getLayout = (page) => <Layout title={"Actions"}>{page}</Layout>
+ActivitiesPage.getLayout = (page) => <Layout title="Activities">{page}</Layout>
 
-export default ActionsPage
+export default ActivitiesPage
 ```
 
-2) Update `./app/actions/components/ActionForm.tsx`:
+2) Update `./app/actions/queries/getActions.ts` so that we include the user and remove the pagination:
+```ts
+import { Ctx } from "blitz"
+import db, { Prisma } from "db"
+
+type GetActionsInput = Pick<Prisma.FindManyActionArgs, "where" | "orderBy" | "skip" | "take">
+
+export default async function getActions(
+	{ where, orderBy }: GetActionsInput,
+	ctx: Ctx
+) {
+	ctx.session.authorize()
+
+	const actions = await db.action.findMany({
+		where,
+		orderBy,
+		include: { user: true }
+	})
+
+	return {
+		actions
+	}
+}
+```
+
+3) Update `./app/actions/components/ActionForm.tsx`:
 ```tsx
 import React, { FC } from "react"
 import { LabeledTextField } from "app/components/LabeledTextField"
@@ -129,7 +148,7 @@ export const ActionForm: FC<ActionFormProps> = (props) => {
 }
 export default ActionForm
 ```
-3) Create file `./app/actions/validations.ts`:
+4) Create file `./app/actions/validations.ts`:
 ```ts
 import * as z from "zod"
 
@@ -142,7 +161,7 @@ export const ActionInput = z.object({
 export type ActionInputType = z.infer<typeof ActionInput>
 ```
 
-4) Update `./app/actions/pages/actions/new.tsx`:
+5) Update `./app/actions/pages/actions/new.tsx`:
 ```tsx
 import Layout from "app/layouts/Layout"
 import { Link, useRouter, useMutation, BlitzPage } from "blitz"
@@ -183,7 +202,7 @@ NewActionPage.getLayout = (page) => <Layout title={"Create New Action"}>{page}</
 export default NewActionPage
 ```
 
-5) Update `./app/actions/mutations/createAction.ts`:
+6) Update `./app/actions/mutations/createAction.ts`:
 ```ts
 import { Ctx, NotFoundError } from "blitz"
 import db from "db"
@@ -225,8 +244,8 @@ export default async function createAction({ data }: CreateActionInput, ctx: Ctx
 }
 ```
 
-6) Let's delete the created folder `./app/actions/pages/[actionId]` and the file `edit.tsx`. We will allow a action to be deleted, but not edited.
-7) Update file `./app/actions/pages/[actionId].tsx`:
+7) Let's delete the created folder `./app/actions/pages/[actionId]` and the file `edit.tsx`. We will allow a action to be deleted, but not edited.
+8) Update file `./app/actions/pages/[actionId].tsx`:
 ```tsx
 import { Suspense } from "react"
 import Layout from "app/layouts/Layout"
