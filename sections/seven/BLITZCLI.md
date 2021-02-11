@@ -307,4 +307,22 @@ ShowActionPage.getLayout = (page) => <Layout title={"Action"}>{page}</Layout>
 
 export default ShowActionPage
 ```
+
+9) Create file `app/actions/queries/getAction.ts`:
+```ts
+import { Ctx, NotFoundError } from "blitz"
+import db, { Prisma } from "db"
+
+type GetActionInput = Pick<Prisma.FindFirstActionArgs, "where">
+
+export default async function getAction({ where }: GetActionInput, ctx: Ctx) {
+  ctx.session.authorize()
+
+  const action = await db.action.findFirst({ where, include: { user: true, activity: true } })
+
+  if (!action) throw new NotFoundError()
+
+  return action
+}
+```
 [All done! Back to section 7](./README.md)
