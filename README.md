@@ -24,6 +24,7 @@ Hosting a Blitz app in Azure
 * [Section 6 - Add user name when creating new user](/sections/six)
 * [Section 7 - Setup database structure](/sections/seven)
 * [Section 8 - Leaderboard setup](/sections/eight)
+* [Section 9 - UI Improvements](/sections/nine)
 
 ## Workshop repo
 See the different sections as branches in this repo: https://github.com/SigurdMW/dotjs-leaderboard
