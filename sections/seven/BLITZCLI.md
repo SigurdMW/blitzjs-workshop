@@ -187,7 +187,7 @@ export default NewActionPage
 ```ts
 import { Ctx, NotFoundError } from "blitz"
 import db from "db"
-import { ActionInputType } from "../validations"
+import { ActionInput, ActionInputType } from "../validations"
 
 type CreateActionInput = {
 	data: ActionInputType
@@ -195,6 +195,8 @@ type CreateActionInput = {
 
 export default async function createAction({ data }: CreateActionInput, ctx: Ctx) {
 	ctx.session.authorize()
+
+	const { comment, activityId, userId } = ActionInput.parse(data)
 
 	// Make sure the given activity and user exist
 	const [user, activity] = await Promise.all([
@@ -207,14 +209,15 @@ export default async function createAction({ data }: CreateActionInput, ctx: Ctx
 	const action = await db.action.create({
 		data: {
 			activity: {
-				connect: { id: data.activityId }
+				connect: { id: activityId }
 			},
 			user: {
-				connect: { id: data.userId }
+				connect: { id: userId }
 			},
 			createdByUser: {
 				connect: { id: ctx.session.userId }
-			}
+			},
+			comment
 		}
 	})
 
