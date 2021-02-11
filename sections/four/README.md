@@ -221,7 +221,7 @@ export interface LabeledTextFieldProps extends PropsWithoutRef<JSX.IntrinsicElem
 }
 
 export const LabeledTextField = React.forwardRef<HTMLInputElement, LabeledTextFieldProps>(
-	({ label, outerProps, type, name, ...props }, ref) => {
+	({ label, outerProps, type, name, placeholder, ...props }, ref) => {
 		const {
 			register,
 			formState: { isSubmitting },
@@ -251,9 +251,11 @@ export const LabeledTextField = React.forwardRef<HTMLInputElement, LabeledTextFi
 									const value = v.target.value
 									if (type === "number") {
 										onChange(parseInt(value, 10))
+									} else {
+										onChange(value)
 									}
-									onChange(value)
 								}}
+								placeholder={placeholder}
 								className="w-full p-1 pl-2 rounded-sm mt-2 text-black"
 								{...rest}
 							/>
