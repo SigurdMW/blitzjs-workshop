@@ -279,3 +279,5 @@ Home.getLayout = (page) => <Layout title="Home">{page}</Layout>
 
 export default Home
 ```
+
+Allright! We're looking pretty good. [Back to section 8](./README.md)
