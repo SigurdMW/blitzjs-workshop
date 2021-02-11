@@ -216,4 +216,9 @@ export default async function createAction({ data }: CreateActionInput, ctx: Ctx
 	return action
 }
 ```
+
+6) Let's delete the created folder `./app/actions/pages/[actionId]` and the file `edit.tsx`. We will allow a action to be deleted, but not edited.
+7) Update file `./app/actions/pages/[actionId].tsx`:
+```tsx
+```
 [All done! Back to section 7](./README.md)
