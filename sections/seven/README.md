@@ -86,22 +86,22 @@ model Session {
 }
 
 model Activity {
-  id        Int      @default(autoincrement()) @id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        	Int      @default(autoincrement()) @id
+  createdAt 	DateTime @default(now())
+  updatedAt 	DateTime @updatedAt
   createdByUser	User		@relation("ActivityCreatedBy", fields: [createdById], references: [id])
   createdById	Int
-  points    Int
+  points    	Int
   name		String
   description	String?
 }
 
 model Action {
-  id        Int      @default(autoincrement()) @id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        	Int      @default(autoincrement()) @id
+  createdAt 	DateTime @default(now())
+  updatedAt 	DateTime @updatedAt
   createdByUser User @relation("ActionCreatedBy", fields: [createdById], references: [id])
-  createdById: Int
+  createdById	Int
   user		User	 @relation("AssignedActions", fields: [userId], references: [id])
   userId	Int
   activity	Activity	@relation(fields: [activityId], references: [id])
