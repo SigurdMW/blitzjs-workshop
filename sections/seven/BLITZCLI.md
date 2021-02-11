@@ -15,6 +15,7 @@ model Action {
   userId	      Int
   activity	    Activity @relation(fields: [activityId], references: [id])
   activityId    Int
+  comment	String @default("")
 }
 ```
 And add this on the `User` model:
