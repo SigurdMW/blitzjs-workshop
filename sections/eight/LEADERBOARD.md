@@ -2,7 +2,7 @@
 We are going to setup the leaderboard as a feature, that means it will live at /leaderboard and have it's own queries and mutations.
 
 ## Setting up the feature
-1) Create file and folders `./app/leaderboard/pages/leaderboard/index.ts`:
+1) Create file and folders `./app/leaderboard/pages/leaderboard/index.tsx`:
 ```tsx
 import { Suspense } from "react"
 import Layout from "app/layouts/Layout"
