@@ -123,6 +123,7 @@ export const ActionForm: FC<ActionFormProps> = (props) => {
 		<Form submitText={props.submitText || "Create"} schema={ActionInput} {...props}>
 			<LabeledTextField name="userId" label="User" placeholder="User" type="number" />
 			<LabeledTextField name="activityId" label="Activity" placeholder="Activity" type="number" />
+			<LabeledTextField name="comment" label="Comment" placeholder="Comment" type="text" />
 		</Form>
 	)
 }
@@ -134,7 +135,8 @@ import * as z from "zod"
 
 export const ActionInput = z.object({
 	userId: z.number().min(0),
-	activityId: z.number().min(0)
+	activityId: z.number().min(0),
+	comment: z.string().optional()
 })
 
 export type ActionInputType = z.infer<typeof ActionInput>
@@ -183,7 +185,7 @@ export default NewActionPage
 
 5) Update `./app/actions/mutations/createAction.ts`:
 ```ts
-import { Ctx } from "blitz"
+import { Ctx, NotFoundError } from "blitz"
 import db from "db"
 import { ActionInputType } from "../validations"
 
@@ -195,10 +197,12 @@ export default async function createAction({ data }: CreateActionInput, ctx: Ctx
 	ctx.session.authorize()
 
 	// Make sure the given activity and user exist
-	await Promise.all([
+	const [user, activity] = await Promise.all([
 		db.user.findUnique({ where: { id: data.userId }}),
 		db.activity.findUnique({ where: { id: data.activityId }})
 	])
+
+	if (!user || !activity) throw new NotFoundError("User or activity not found")
 
 	const action = await db.action.create({
 		data: {
