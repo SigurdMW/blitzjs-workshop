@@ -2,7 +2,7 @@
 Right now, we have to enter the id of the user and the activity we want to add. That's not ideal. Let's fix it now.
 
 ## Adding a user select component
-Create file `./app/component/UserSelect.tsx`:
+1) Create file `./app/component/UserSelect.tsx`:
 ```tsx
 import { User } from "db"
 import getUsers from "app/users/queries/getUsers"
@@ -84,6 +84,22 @@ const UserSelect: FC<Omit<UserSelectFieldProps, "users">> = (props) => (
 
 export default UserSelect
 ``` 
+
+2) Create `app/users/queries/getUsers.ts`:
+```ts
+import { Ctx } from "blitz"
+import db from "db"
+
+export default async function getUsers(_ = null, ctx: Ctx) {
+  ctx.session.authorize()
+
+  const user = await db.user.findMany({
+	  select: { name: true, email: true, id: true }
+  })
+
+  return user
+}
+```
 ## Adding a activity select component
 Add file `./app/component/ActivitySelect.tsx`:
 ```tsx
