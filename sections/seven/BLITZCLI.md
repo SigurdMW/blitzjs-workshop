@@ -127,8 +127,19 @@ export const ActionForm: FC<ActionFormProps> = (props) => {
 }
 export default ActionForm
 ```
+3) Create file `./app/actions/validations.ts`:
+```ts
+import * as z from "zod"
 
-3) Update `./app/actions/pages/actions/new.tsx`:
+export const ActionInput = z.object({
+	userId: z.number().min(0),
+	activityId: z.number().min(0)
+})
+
+export type ActionInputType = z.infer<typeof ActionInput>
+```
+
+4) Update `./app/actions/pages/actions/new.tsx`:
 ```tsx
 import Layout from "app/layouts/Layout"
 import { Link, useRouter, useMutation, BlitzPage } from "blitz"
@@ -169,7 +180,7 @@ NewActionPage.getLayout = (page) => <Layout title={"Create New Action"}>{page}</
 export default NewActionPage
 ```
 
-4) Update `./app/actions/mutations/createAction.ts`:
+5) Update `./app/actions/mutations/createAction.ts`:
 ```ts
 import { Ctx } from "blitz"
 import db from "db"
