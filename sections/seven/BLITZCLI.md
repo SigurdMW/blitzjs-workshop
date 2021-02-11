@@ -103,4 +103,106 @@ ActionsPage.getLayout = (page) => <Layout title={"Actions"}>{page}</Layout>
 
 export default ActionsPage
 ```
+
+2) Update `./app/actions/components/ActionForm.tsx`:
+```tsx
+import React, { FC } from "react"
+import { LabeledTextField } from "app/components/LabeledTextField"
+import { Form } from "app/components/Form"
+import { ActionInputType, ActionInput } from "../validations"
+
+type ActionFormProps = {
+	initialValues: Partial<ActionInputType>
+	onSubmit: (values: ActionInputType) => any
+	submitText?: string
+}
+
+export const ActionForm: FC<ActionFormProps> = (props) => {
+	return (
+		<Form submitText={props.submitText || "Create"} schema={ActionInput} {...props}>
+			<LabeledTextField name="userId" label="User" placeholder="User" type="number" />
+			<LabeledTextField name="activityId" label="Activity" placeholder="Activity" type="number" />
+		</Form>
+	)
+}
+export default ActionForm
+```
+
+3) Update `./app/actions/pages/actions/new.tsx`:
+```tsx
+import Layout from "app/layouts/Layout"
+import { Link, useRouter, useMutation, BlitzPage } from "blitz"
+import createAction from "app/actions/mutations/createAction"
+import ActionForm from "app/actions/components/ActionForm"
+
+const NewActionPage: BlitzPage = () => {
+	const router = useRouter()
+	const [createActionMutation] = useMutation(createAction)
+
+	return (
+		<>
+			<h1 className="text-6xl mb-10">New action</h1>
+
+			<ActionForm
+				initialValues={{}}
+				onSubmit={async (values) => {
+					try {
+						const action = await createActionMutation({ data: values })
+						router.push(`/actions/${action.id}`)
+					} catch (error) {
+						alert("Error creating action " + JSON.stringify(error, null, 2))
+					}
+				}}
+			/>
+
+			<p>
+				<Link href="/actions">
+					<a>Back to actions</a>
+				</Link>
+			</p>
+		</>
+	)
+}
+
+NewActionPage.getLayout = (page) => <Layout title={"Create New Action"}>{page}</Layout>
+
+export default NewActionPage
+```
+
+4) Update `./app/actions/mutations/createAction.ts`:
+```ts
+import { Ctx } from "blitz"
+import db from "db"
+import { ActionInputType } from "../validations"
+
+type CreateActionInput = {
+	data: ActionInputType
+}
+
+export default async function createAction({ data }: CreateActionInput, ctx: Ctx) {
+	ctx.session.authorize()
+
+	// Make sure the given activity and user exist
+	await Promise.all([
+		db.user.findUnique({ where: { id: data.userId }}),
+		db.activity.findUnique({ where: { id: data.activityId }})
+	])
+
+	const action = await db.action.create({
+		data: {
+			activity: {
+				connect: { id: data.activityId }
+			},
+			user: {
+				connect: { id: data.userId }
+			},
+			createdByUser: {
+				connect: { id: ctx.session.userId }
+			}
+		}
+	})
+
+	return action
+}
+```
 [All done! Back to section 7](./README.md)
