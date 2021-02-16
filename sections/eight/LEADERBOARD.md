@@ -65,7 +65,7 @@ LeaderboardPage.getLayout = (page) => <Layout title="Activities">{page}</Layout>
 export default LeaderboardPage
 ```
 
-2) Crate file and folder `./app/leaderboard/queries/getLeaderboard`:
+2) Crate file and folder `./app/leaderboard/queries/getLeaderboard.ts`:
 ```ts
 import { Ctx } from "blitz"
 import db, { User } from "db"
